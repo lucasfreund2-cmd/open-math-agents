@@ -1,0 +1,2 @@
+{"case": {"family": "Johnson_union", "v": 8, "k": 4, "intersections": [0, 1, 2], "vertices": 70, "seconds": 6.84, "result": "oracle_timeout_without_path", "iterations": 1}, "exact": {"verified": false, "reason": "no_support_generated"}}
+{"case": {"family": "Johnson_union", "v": 8, "k": 4, "intersections": [0, 2, 3], "vertices": 70, "seconds": 4.24, "result": "oracle_timeout_without_path", "iterations": 0}, "exact": {"verified": false, "reason": "no_support_generated"}}

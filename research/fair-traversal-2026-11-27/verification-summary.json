@@ -1,0 +1,61 @@
+{
+  "exactly_verified_instances": 4780,
+  "by_family": {
+    "GP": 17,
+    "Johnson_union": 6,
+    "circulant_cayley": 1974,
+    "complement_GP": 5,
+    "coset_orbital_union": 293,
+    "cubic_vertex_transitive_census": 264,
+    "cycle_truncation": 10,
+    "dihedral_cayley": 1938,
+    "symmetric_cayley": 273
+  },
+  "max_vertices": 120,
+  "max_edge_orbits": 18,
+  "isomorphism_deduplicated": false,
+  "scope": "Individual finite cases, not the general conjecture.",
+  "certificate_file_sha256": "0f40ddf903071d165bde1c7ccf9a38d9e4a48f475657042c621961ff3a7fd52a",
+  "certificate_file_bytes": 655373,
+  "uncompressed_bytes": 4360216,
+  "unresolved_oracle_timeouts": 2,
+  "lean_formalized": false,
+  "vertex_ranges": {
+    "GP": [
+      10,
+      64
+    ],
+    "Johnson_union": [
+      35,
+      70
+    ],
+    "circulant_cayley": [
+      4,
+      28
+    ],
+    "complement_GP": [
+      16,
+      32
+    ],
+    "coset_orbital_union": [
+      8,
+      30
+    ],
+    "cubic_vertex_transitive_census": [
+      6,
+      64
+    ],
+    "cycle_truncation": [
+      20,
+      120
+    ],
+    "dihedral_cayley": [
+      6,
+      40
+    ],
+    "symmetric_cayley": [
+      6,
+      24
+    ]
+  }
+}
