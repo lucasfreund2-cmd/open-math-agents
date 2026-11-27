@@ -1,0 +1,113 @@
+{
+  "problem": "mse-2822876",
+  "recorded_at_utc": "2026-11-27T10:50:58.297235+00:00",
+  "contribution": "Complete Lean formalization of an established theorem, with a generic UFD equivalence",
+  "statement": {
+    "exit_code": 0,
+    "seconds": 147.29,
+    "source_sha256": "8d5ec1a1447ab9e9f2ab198ff24287b8cb2adb20598931f09a9b96664c7c5d3c",
+    "source_unchanged": true,
+    "verdict": {
+      "file": "statements/mse-2822876.lean",
+      "type": "statement",
+      "problem": "mse-2822876",
+      "module": "OMAStatements.S_mse_2822876",
+      "ok": true,
+      "kind": "statement",
+      "polarity": "proof",
+      "theorem": "OMA.S_mse_2822876.main",
+      "imports": "Mathlib",
+      "errors": [],
+      "verdict": "accepted",
+      "reason": "the statement compiles; it now needs a human review of the translation",
+      "log": "OMASubmission_5.lean:26:8: warning: declaration uses `sorry`\n'OMA.S_mse_2822876.main' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]"
+    }
+  },
+  "complete_proof": {
+    "exit_code": 0,
+    "seconds": 266.04,
+    "source_sha256": "36e4a515fd02efb827a9f9c3e734c3d8d370798908d6157bc7822fff8f407b0e",
+    "source_unchanged": true,
+    "verdict": {
+      "file": "proofs/mse-2822876.lean",
+      "type": "proof",
+      "problem": "mse-2822876",
+      "ok": true,
+      "kind": "open",
+      "polarity": "proof",
+      "theorem": "OMA.solution",
+      "imports": "OMAStatements.S_mse_2822876",
+      "errors": [],
+      "decl": "OMA.S_mse_2822876.main",
+      "verdict": "accepted",
+      "reason": "kernel accepted; axioms within propext, Classical.choice, Quot.sound",
+      "log": "'OMA.solution' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    }
+  },
+  "all_theorems_audit": {
+    "exit_code": 0,
+    "seconds": 265.534,
+    "source_sha256": "36e4a515fd02efb827a9f9c3e734c3d8d370798908d6157bc7822fff8f407b0e",
+    "report_file": "all-theorems.log",
+    "allowed_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "report": "'OMA.MSE2822876.common_divisor_of_pairwise' depends on axioms: [propext, Classical.choice, Quot.sound]\n'OMA.MSE2822876.pairwise_iff_exists_prime' depends on axioms: [propext, Classical.choice, Quot.sound]\n'OMA.MSE2822876.positive_totalDegree_iff' depends on axioms: [propext, Classical.choice, Quot.sound]\n'OMA.MSE2822876.polynomial_ideal_common_factor' depends on axioms: [propext, Classical.choice, Quot.sound]\n'OMA.solution' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+  },
+  "environment": {
+    "lean": "4.33.1",
+    "mathlib_commit": "0df444a360eaa60ab8c11dca51a86af692955474",
+    "formal_conjectures_commit": "9097e2f90e66d2f6244209cb1c07f7120d17ec53",
+    "open_math_agents_base_commit": "3ab077ca5e367891ca10726e55ea6a41f3b9e957",
+    "checker": "tools/check.sh (unmodified)",
+    "checker_sha256": "c68258171d808f51e7ddbab456fee34b6122a182bfb6f623dcb387547db213d0",
+    "linter_sha256": "2df470ecba52a506c4c944fda6f62d55eca8568def6e26b819367483dc456e31"
+  },
+  "published_source": {
+    "repository": "lucasfreund2-cmd/open-math-agents",
+    "branch": "research/mse2822876-complete-formalization",
+    "proof_commit": "f13994c69223125c88eddaf72aafc21786a369c5",
+    "proof_path": "proofs/mse-2822876.lean",
+    "proof_lines": 117,
+    "proof_bytes": 5119
+  },
+  "upstream_status": {
+    "statement_pr": "https://github.com/GuillaumeBAUD-coder/open-math-agents/pull/5285",
+    "statement_pr_state": "open",
+    "statement_merged": false,
+    "statement_ci_verdict": "accepted - the statement compiles; it now needs a human review of the translation",
+    "statement_ci_verdict_at_utc": "2026-11-27T10:45:58.8138605Z",
+    "statement_ci_run": "https://github.com/GuillaumeBAUD-coder/open-math-agents/actions/runs/45983639894",
+    "statement_ci_job": 140453553206,
+    "proof_upstream_submitted": false,
+    "remaining_requirement": "Human statement review and merge, followed by a separate one-file proof PR and the site proof review"
+  },
+  "development_history": [
+    {
+      "stage": "First exact-target attempt under the full Mathlib import",
+      "exit_code": 1,
+      "source_sha256": "bca8cf369097f8762938943070c42a2b04efa53f67ba2d3c7aeb4c2c7a59eaba",
+      "reason": "Two broad simp conversions were affected by additional rules relating normalizedFactors.toFinset and primeFactors.",
+      "resolution": "Use explicit Multiset.mem_toFinset.mp and .mpr; the mathematical statement and argument are unchanged.",
+      "superseded_by": "complete_proof and all_theorems_audit in this record"
+    }
+  ],
+  "interpretation": {
+    "statement_sorry": "Exactly one intentional sorry in the statement body, required by the site statement-submission protocol.",
+    "proof_uses_statement_body": false,
+    "proof_target": "type_of% @OMA.S_mse_2822876.main",
+    "source_fidelity_review": "A separate AI-assisted mathematical audit passed; maintainer translation review remains pending.",
+    "novel_math_claim": false,
+    "first_formalization_priority_claim": false,
+    "peer_reviewed": false
+  },
+  "paper": {
+    "path": "papers/mse-2822876/paper.pdf",
+    "sha256": "23b6f9cd168addcc7dcfca44f47b748b7f9cf647f8db46ed928a4c83fdb226b2",
+    "latex_sha256": "7586d6df7fc476906d3a004da42299f1966b844558b59d0455b385559ea59cbe",
+    "pdf_bytes": 270896,
+    "render_check": "All pages rendered to PNG for visual inspection; no overfull boxes or undefined references in final compile"
+  }
+}

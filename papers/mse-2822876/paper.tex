@@ -1,0 +1,403 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\hypersetup{
+  pdftitle={A Lean Formalization of a Pairwise Common-Divisor Criterion for Ideals},
+  pdfauthor={Lucas Freund},
+  pdfsubject={Complete formalization of the polynomial-ideal criterion and its UFD form},
+  pdfkeywords={Lean, Mathlib, prime avoidance, polynomial ideals}
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\units}{R^{\times}}
+\newcommand{\td}{\operatorname{tdeg}}
+\newcommand{\pair}{\mathcal{P}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\setlength{\emergencystretch}{2em}
+
+\title{A Lean Formalization of a Pairwise\newline
+Common-Divisor Criterion for Ideals}
+\author{Lucas Freund\\[2pt]
+  \small\texttt{lucasfreund2-cmd/open-math-agents}}
+\date{27 November 2026\\[2pt]\small Formalization note}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $I$ be an ideal of a unique factorization domain. Suppose that every
+pair of elements of $I$ admits a common divisor that is nonzero and not a
+unit. Then a single prime element divides every element of $I$.
+We give a Lean formalization of this classical argument and specialize
+it to the polynomial-ideal question recorded as Mathematics Stack
+Exchange question 2822876. The proof fixes one nonzero element of the
+ideal, covers the ideal by the finitely many principal prime ideals
+arising from its factors, and applies finite prime avoidance. An
+additional lemma identifies positive total degree with being a nonzero
+nonunit over a field. The development includes the zero ideal and zero
+variables, uses the full pairwise hypothesis, and does not require a
+Noetherian assumption. This note documents the mathematical argument,
+its translation into Lean, and the reproducibility and review scope of
+the accompanying artifact. The contribution is a formalization of
+established mathematics.
+\end{abstract}
+
+\section{The source problem and its scope}
+
+Schultz's 2018 question asks whether an ideal of
+$\C[x_1,\ldots,x_n]$ whose elements have pairwise nontrivial common
+divisors has a nonconstant divisor common to the whole ideal
+\cite{schultz}. The same result appears as Exercise~5.5.3 in Appendix~A,
+\emph{Basics from Algebraic Geometry}, of Kraft's notes, on printed
+page~169 \cite{kraft}. In a 2021 MathOverflow answer, Sawin gives an
+argument for unique factorization domains; a comment by \texttt{tj\_}
+identifies finite prime avoidance as the underlying principle
+\cite{sawin,tj}. These sources establish the prior mathematical context
+of the present development. We make no claim of a new theorem or of
+priority for its first formalization.
+
+Write $A_n=\C[x_1,\ldots,x_n]$ and let $\td(f)$ denote the total degree,
+with $\td(0)=0$. The precise polynomial statement is the following.
+
+\begin{theorem}[Polynomial-ideal criterion]\label{thm:polynomial}
+For every $n\in\N$ and ideal $I\subseteq A_n$, assume that
+\begin{equation}\label{eq:polynomial-pair}
+  \forall f,g\in I\quad
+  \exists h\in A_n\quad
+  \td(h)>0,\qquad h\mid f,\qquad h\mid g.
+\end{equation}
+Then there exists $h\in A_n$ such that
+\begin{equation}\label{eq:polynomial-global}
+  \td(h)>0
+  \quad\text{and}\quad
+  \forall f\in I,\ h\mid f.
+\end{equation}
+\end{theorem}
+
+Both quantifiers in \eqref{eq:polynomial-pair} range over the entire
+ideal, with no distinctness or nonzero restriction. The divisor may
+depend on the pair; the conclusion removes that dependence. The
+divisor is required to be a nonconstant polynomial, rather than merely
+a nonunit, because the zero polynomial is a nonunit. Neither the
+hypothesis nor the conclusion requires the divisor to belong to $I$.
+
+The question's proposed route uses finite generation. The proof below
+instead obtains finiteness from the factorization of one nonzero
+element. This permits a statement for arbitrary ideals in an arbitrary
+unique factorization domain (UFD). The specialization to complex
+polynomials uses their UFD structure; algebraic closedness, analytic
+properties of $\C$, and a chosen generating family play no role.
+
+\section{A criterion in a unique factorization domain}
+
+Throughout this section, $R$ is a commutative integral domain with
+identity and unique factorization. A prime element is, by definition,
+nonzero, not a unit, and prime for divisibility. We write $(p)=pR$.
+
+\begin{theorem}[General criterion]\label{thm:ufd}
+For an ideal $I$ of $R$, the following conditions are equivalent:
+\begin{enumerate}
+  \item Every $a,b\in I$ have a common divisor $d\ne0$ that is not a unit.
+  \item There is a nonzero nonunit $d\in R$ with $d\mid a$ for every
+    $a\in I$.
+  \item There is a prime element $p\in R$ such that $I\subseteq(p)$.
+\end{enumerate}
+Thus the pairwise condition is equivalent to containment in a
+\emph{nonzero principal prime ideal}.
+\end{theorem}
+
+The word ``nonzero'' in the last sentence is essential: the zero ideal
+is itself a principal prime ideal in a domain, but its generator is
+not a prime element. The theorem concerns containment, and does not
+assert that $I$ itself is principal.
+
+We recall the form of prime avoidance used in the proof. It is a
+special case of the standard finite prime-avoidance lemma
+\cite{stacks}; the short proof is included for completeness.
+
+\begin{lemma}[Finite prime avoidance]\label{lem:avoidance}
+Let $J,P_1,\ldots,P_r$ be ideals of a commutative ring, with every
+$P_i$ prime. If $J\subseteq\bigcup_{i=1}^r P_i$, then
+$J\subseteq P_i$ for some $i$.
+\end{lemma}
+
+\begin{proof}
+Delete any ideal contained in another, leaving an incomparable family
+with the same union. Suppose that $J$ is contained in none of them.
+Choose $a_i\in J\setminus P_i$ and, for each $j\ne i$, choose
+$b_{ij}\in P_j\setminus P_i$. Put
+\[
+  c_i=a_i\prod_{j\ne i}b_{ij},\qquad c=\sum_i c_i.
+\]
+Each $c_i$ lies in $J$, so $c\in J$. Primality gives $c_i\notin P_i$;
+for $k\ne i$, the factor $b_{ki}$ gives $c_k\in P_i$. Consequently
+$c\notin P_i$ for every $i$, contradicting the cover. Empty products
+are $1$; an empty family cannot cover an ideal because every ideal
+contains $0$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:ufd}]
+Assume condition~(1). If $I=(0)$, apply it to the pair $(0,0)$.
+The resulting nonzero nonunit divides every element of $I$, proving
+(2) in this case.
+
+Otherwise choose $0\ne a\in I$. Condition~(1) applied to $(a,a)$
+ensures that $a$ is not a unit. Let $p_1,\ldots,p_r$ represent its
+distinct irreducible factors up to association. This is a finite
+nonempty family, and each $p_i$ is prime because $R$ is a UFD.
+For any $b\in I$, choose a common nonzero nonunit divisor $d$ of $a$
+and $b$. An irreducible factor $q$ of $d$ divides both. Since $q\mid a$,
+it is associated to one of the $p_i$, and hence $p_i\mid b$. We obtain
+\begin{equation}\label{eq:cover}
+  I\subseteq \bigcup_{i=1}^r(p_i).
+\end{equation}
+The ideals $(p_i)$ are prime. Lemma~\ref{lem:avoidance} gives
+$I\subseteq(p_i)$ for some $i$, so (2) follows with $d=p_i$.
+
+Next, assume (2). A nonzero nonunit $d$ has an irreducible factor
+$p$, which is prime in a UFD. Divisibility is transitive, so
+$p\mid a$ for every $a\in I$; this proves (3), including when $I=(0)$.
+Finally, (3) implies (1) by using the same prime $p$ for every pair.
+\end{proof}
+
+The only finite set needed is the set of factors of $a$. No bound on
+the number of generators of $I$ enters the proof. In
+\eqref{eq:cover}, the index $i$ initially depends on $b$; ideal closure
+and prime avoidance are precisely what allow one index to work for
+all elements simultaneously.
+
+\section{Nonconstant polynomials and boundary cases}
+
+The passage from Theorem~\ref{thm:ufd} to
+Theorem~\ref{thm:polynomial} requires the following elementary bridge.
+
+\begin{lemma}\label{lem:degree}
+For a field $K$, a variable type $\sigma$, and
+$f\in K[X_s\mid s\in\sigma]$,
+\[
+  \td(f)>0
+  \quad\Longleftrightarrow\quad
+  f\ne0\ \text{and}\ f\text{ is not a unit}.
+\]
+\end{lemma}
+
+\begin{proof}
+A polynomial of positive total degree is nonzero, and units over a
+field are nonzero constants, so it cannot be a unit. Conversely,
+a polynomial of total degree zero is its constant coefficient.
+If it is nonzero, that coefficient is an invertible field element;
+the polynomial is therefore a unit. This contradicts the right-hand
+side and proves the converse.
+\end{proof}
+
+Applying Lemma~\ref{lem:degree} to each divisor in
+\eqref{eq:polynomial-pair}, followed by Theorem~\ref{thm:ufd}, yields
+a global nonzero nonunit. A second application of the lemma gives
+\eqref{eq:polynomial-global}. The same reasoning works over every
+field. The submitted theorem retains $\C$ and finitely many variables
+to match the source problem.
+
+For $I=(0)$, extracting a divisor from the pair $(0,0)$ avoids any
+unstated assumption that the ideal contains a nonzero element.
+When $n\ge1$, a variable provides such a divisor. When $n=0$, the
+polynomial ring is $\C$, so it has no positive-degree elements.
+The pairwise hypothesis is then false, already at $(0,0)$, and the
+implication remains valid. Thus admitting all $n\in\N$ does not create
+a spurious existence claim about polynomials in zero variables.
+
+Two further distinctions matter for the translation. First, checking
+only pairs of generators is insufficient. In $K[x,y,z]$, the three
+generators $xy,xz,yz$ have pairwise common nonconstant factors, but
+they have none in common to all three. Their ideal also contains
+$xy$ and $z(x+y)$, which have no common nonconstant factor. The source
+hypothesis therefore fails for this ideal, as it should. Second, a
+global divisor need not lie in the ideal: $x$ divides every element
+of $(x^2,xy)\subset K[x,y]$, while $x\notin(x^2,xy)$, as every
+polynomial in that ideal has zero component of total degree one.
+
+Finally, having no common nonunit factor is a divisibility condition,
+not a claim that two elements generate the unit ideal. For example,
+$x$ and $y$ have no common nonconstant factor in $K[x,y]$, but
+$(x,y)$ is proper. The formal statement uses divisibility directly,
+avoiding an accidental strengthening to a B\'ezout condition.
+
+\section{Lean architecture}
+
+The companion source \cite{artifact} separates the general algebra
+from the polynomial interpretation. The generic ring assumptions are
+\code{CommRing R}, \code{IsDomain R}, and
+\code{UniqueFactorizationMonoid R}. The four principal declarations
+in namespace \code{OMA.MSE2822876} are:
+\begin{enumerate}
+  \item \code{common_divisor_of_pairwise}, proving the global-divisor
+    conclusion in a UFD;
+  \item \code{pairwise_iff_exists_prime}, proving equivalence with a
+    prime element dividing the entire ideal;
+  \item \code{positive_totalDegree_iff}, establishing
+    Lemma~\ref{lem:degree} over any field;
+  \item \code{polynomial_ideal_common_factor}, specializing the generic
+    theorem to \code{MvPolynomial (Fin n)} with complex coefficients.
+\end{enumerate}
+
+For a nonzero element \code{a}, the proof enables Mathlib's strong
+normalization structure and takes the finite set underlying
+\code{normalizedFactors a}. Multiplicities are discarded because
+only the available prime divisors matter. Mathlib's factorization
+lemmas supply an irreducible factor of each common divisor and an
+associated normalized factor of \code{a}. Association preserves
+divisibility, so these representatives give exactly the cover in
+\eqref{eq:cover} \cite{mathlib}.
+
+The algebraic interface is
+\code{Ideal.mem_span_singleton}: membership in the ideal generated
+by $p$ is equivalent to divisibility by $p$.
+\code{Ideal.isPrime_span_singleton_of_prime} supplies primality, and
+\code{Ideal.subset_union_prime} supplies finite prime avoidance.
+Within the \code{MvPolynomial} namespace, the degree bridge uses
+\code{totalDegree_eq_zero_iff_eq_C} and
+\code{isUnit_iff_totalDegree_of_isReduced}.
+These library results are reused rather than reimplemented.
+
+The proof uses classical reasoning to select factors and handle the
+zero-ideal alternative. It establishes existence and supplies no
+algorithm for computing a factor from an arbitrary presentation of an
+ideal. This matches the existential source question. Polynomial
+factorization algorithms, effective degree bounds, and extensions to
+domains without unique factorization are outside this artifact's
+claims.
+
+\section{Verification, reproducibility, and review}
+
+The artifact pins Lean~4.33.1 and the following dependencies:
+\begin{center}
+\small
+\begin{tabular}{ll}
+Mathlib & \texttt{0df444a360eaa60ab8c11dca51a86af692955474}\\[3pt]
+Formal Conjectures & \texttt{9097e2f90e66d2f6244209cb1c07f7120d17ec53}
+\end{tabular}
+\end{center}
+Formal Conjectures provides the pinned checking environment. The
+question itself is newly stated in the companion
+\path{statements/mse-2822876.lean}, rather than taken from an existing
+upstream declaration. The proof is
+\path{proofs/mse-2822876.lean}; its final wrapper is:
+\begin{verbatim}
+theorem OMA.solution :
+    type_of% @OMA.S_mse_2822876.main := by
+  intro n I hpair
+  exact OMA.MSE2822876.polynomial_ideal_common_factor
+    n I hpair
+\end{verbatim}
+Using the type of the statement fixes the target without using the
+statement as a proved premise. The statement file retains the single
+intentional \code{sorry} required by the site's translation-review
+workflow. The solution file contains a complete proof. An axiom audit
+of \code{OMA.solution} must confirm that the statement's proof hole
+has not entered the derivation.
+
+The unmodified repository checker accepted the proposed statement and
+the complete, exact-target proof locally. For \code{OMA.solution},
+Lean reported exactly \code{propext}, \code{Classical.choice}, and
+\code{Quot.sound}, with no dependence on \code{sorryAx}. The verified
+proof has 117 lines and contains neither \code{sorry} nor
+\code{native_decide}. A separate AI-assisted audit checked the written
+argument and the translation's boundary cases. The accompanying
+\path{verification.json} records the source hashes, toolchain, checker
+verdicts, and additional theorem audits.
+
+For reproduction, use the pinned environment and the commands in the
+artifact README, lint the statement and proof files, and run
+\path{tools/check.sh} on the proof with the local statement available.
+Retain the compiler output and resulting axiom report. Checking a
+statement's elaboration alone does not validate its mathematical
+translation, and checking a proof against a local statement does not
+by itself establish acceptance by an external submission service.
+
+At the preparation of this note, the statement-only submission is
+upstream pull request~5285. Its GitHub compilation check accepted the
+statement; human translation review remains pending \cite{submission}.
+The complete proof is available separately in the author's repository
+\cite{artifact}. This note makes no claim that LeftToSolve has marked
+the problem solved or merged the proof. The artifact provides a
+complete formal argument; review of fidelity to the source remains a
+separate part of the submission process.
+
+\section*{Authorship and AI assistance}
+
+This note and the accompanying formalization were prepared for Lucas
+Freund's repository with AI assistance from ChatGPT, GPT-6 Astra Pro.
+The assistance covered source investigation, proof development,
+mathematical checking, and drafting. The Lean kernel checks the formal
+derivation; it does not establish literary originality, validate
+source attribution, or confer peer review. The work is presented as a
+formalization note with an inspectable artifact, without a claim of
+journal publication or peer-reviewed acceptance.
+
+\begin{thebibliography}{9}
+\small
+\raggedright
+
+\bibitem{schultz}
+L.~Schultz,
+\emph{Is there a non-constant polynomial that divides every element of
+this given ideal?}
+Mathematics Stack Exchange, question~2822876, 17 June 2018.
+\url{https://math.stackexchange.com/questions/2822876/}.
+Question text licensed CC BY-SA~4.0; the statement above is a
+mathematical restatement.
+
+\bibitem{kraft}
+H.~Kraft,
+\emph{Basics from Algebraic Geometry}, Appendix~A, Exercise~5.5.3,
+printed p.~169. Online notes; date of this PDF version not established.
+\href{https://dmi.unibas.ch/fileadmin/user_upload/dmi/Personen/Kraft_Hanspeter/Algebraic_Geometry.pdf}{University of Basel PDF}.
+
+\bibitem{sawin}
+W.~Sawin,
+Answer to MathOverflow question~410693, 13 December 2021.
+\url{https://mathoverflow.net/a/410694}.
+
+\bibitem{tj}
+\texttt{tj\_},
+Comment on Sawin's answer identifying the prime-avoidance argument,
+13 December 2021.
+\url{https://mathoverflow.net/questions/410693/}.
+
+\bibitem{stacks}
+The Stacks Project Authors,
+\emph{The Stacks Project}, Lemma~10.15.2, Prime avoidance, Tag~00DS.
+\url{https://stacks.math.columbia.edu/tag/00DS}.
+
+\bibitem{mathlib}
+The Mathlib Community,
+\emph{Mathlib}, commit
+\texttt{0df444a360eaa60ab8c11dca51a86af692955474}.
+\href{https://github.com/leanprover-community/mathlib4/tree/0df444a360eaa60ab8c11dca51a86af692955474}{Pinned source tree}.
+
+\bibitem{artifact}
+L.~Freund,
+\emph{Complete formalization of MSE 2822876}, accompanying Lean source,
+repository \texttt{lucasfreund2-cmd/open-math-agents},
+commit \texttt{f13994c69223125c88eddaf72aafc21786a369c5}.
+\href{https://github.com/lucasfreund2-cmd/open-math-agents/blob/f13994c69223125c88eddaf72aafc21786a369c5/proofs/mse-2822876.lean}{Immutable proof source}.
+
+\bibitem{submission}
+L.~Freund,
+Statement submission for \texttt{mse-2822876},
+\emph{open-math-agents}, pull request~5285, 27 November 2026.
+\url{https://github.com/GuillaumeBAUD-coder/open-math-agents/pull/5285}.
+
+\end{thebibliography}
+\end{document}
