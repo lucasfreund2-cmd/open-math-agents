@@ -39,7 +39,8 @@ theorem common_divisor_of_pairwise {R : Type*} [CommRing R] [IsDomain R]
     let S : Finset R := (normalizedFactors a).toFinset
     have hprime : ∀ p ∈ S, Prime p := by
       intro p hp
-      exact prime_of_normalized_factor p (by simpa [S] using hp)
+      have hp' : p ∈ normalizedFactors a := Multiset.mem_toFinset.mp hp
+      exact prime_of_normalized_factor p hp'
     have hcover : (I : Set R) ⊆
         ⋃ p ∈ (↑S : Set R), (Ideal.span ({p} : Set R) : Set R) := by
       intro b hb
@@ -47,7 +48,7 @@ theorem common_divisor_of_pairwise {R : Type*} [CommRing R] [IsDomain R]
       obtain ⟨p, hp, hpd⟩ := WfDvdMonoid.exists_irreducible_factor hdu hd0
       obtain ⟨q, hq, hpq⟩ := exists_mem_normalizedFactors_of_dvd ha0 hp (hpd.trans hda)
       refine Set.mem_iUnion.mpr ⟨q, Set.mem_iUnion.mpr ⟨?_, ?_⟩⟩
-      · simpa [S] using hq
+      · exact Multiset.mem_toFinset.mpr hq
       · exact Ideal.mem_span_singleton.mpr
           (hpq.dvd_iff_dvd_left.mp (hpd.trans hdb))
     obtain ⟨p, hp, hI⟩ :=
